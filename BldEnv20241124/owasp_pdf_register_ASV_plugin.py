@@ -4,7 +4,7 @@
 """
 BSD 3-Clause License
 
-Copyright (c) 2024-2025, Tetsuo Seto
+Copyright (c) 2024-2026, Tetsuo Seto
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -42,47 +42,46 @@ from pdb import set_trace # pylint: disable=unused-import
 
 def _set_proj_common_fields(cs: Dict[str, Any]):
     new_cs: Dict[str, Any] = {
-        "doc_template_type": "classic",
-        "doc_title_pivot.pt_x": 306,
-        "doc_title_pivot.pt_y": 250,
-        "doc_toc_title_pivot.pt_x": 306,
-        "doc_toc_title_pivot.pt_y": 80, # add 15 for bi-di for optimal result
-        "doc_header": "Artificial Intelligence Security Verification Standard",
-        "doc_header_pivot.pt_x": 95,
+        "doc_template_type": "modern_blue",
+        "doc_title_pivot.pt_x": 72,
+        "doc_title_pivot.pt_y": 440,
+        "doc_toc_title_pivot.pt_x": 72,
+        "doc_toc_title_pivot.pt_y": 172, # add 15 for bi-di for optimal result
+        "doc_header": " ",
+        "doc_header_pivot.pt_x": 100,
         "doc_header_pivot.pt_y": 16,
         "doc_legal_notice": False,
-        "doc_title_font.size": 32,
-        "doc_title_font.line_pitch": 50,
-        "doc_title_font.line_alignment": "center",
+        "doc_title_font.size": 33,
+        "doc_title_font.line_pitch": 40,
+        "doc_title_font.line_alignment": "left",
         "doc_subtitle_font.size": 16,
-        "doc_subtitle_font.line_pitch": 28,
-        "doc_subtitle_font.line_alignment": "center",
+        "doc_subtitle_font.line_pitch": 24,
+        "doc_subtitle_font.line_alignment": "left",
         "doc_toc_title_font.size": 24.0,
         "doc_toc_title_font.line_pitch": 50.0,
-        "doc_toc_title_font.line_alignment": "center",
+        "doc_toc_title_font.line_alignment": "left",
         "doc_site_name": "owasp.org",
         "doc_site_url": "https://owasp.org/" + \
             "www-project-application-security-verification-standard/",
-        "doc_appendix_title_font.size": 24,
-        "doc_appendix_title_font.line_pitch": 35,
-        "doc_appendix_title_font.line_alignment": "center",
+        "doc_appendix_title_font.size": 13.0,
+        "doc_appendix_title_font.line_pitch": 18.2,
+        "doc_appendix_title_font.line_alignment": "left",
         "doc_appendix_title_font.color": "black",
         "header_font.color": "white",
-        "chapter_pivot.pt_x": 306,
-        "chapter_pivot.pt_y": 40,
+        "chapter_pivot.pt_x": 72,
+        "chapter_pivot.pt_y": 130,
         "chapter_title_bottom_aligned": False,
         "chapter_font.size": 20,
         "chapter_font.line_pitch": 35,
-        "chapter_font.line_alignment": "center",
-        "chapter_font.color": "white",
+        "chapter_font.line_alignment": "left",
+        "chapter_font.color": "black",
         "section_font.size": 16,
         "section_font.line_pitch": 18.2,
         "blockquote_font.size": 10.0,
         "blockquote_font.line_pitch": 14.0,
         "blockquote_font.line_alignment": "justified",
+        "reference_font.line_alignment": "left",
         "unordered_list_marker": "circle",
-        "doc_appendix_titles": [],
-        "doc_sponsor_page_titles": [],
     }
     for key in new_cs:
         if cs:
@@ -93,14 +92,15 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
 def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_title"] = [
         "Artificial Intelligence",
-        "Security Verification Standard",
+        "Security Verification",
+        "Standard",
     ]
     cs["doc_subtitles"] = [
         "",
+        "",
+        "",
+        "",
         "Initial Version Work In Progress",
-        "",
-        "",
-        "",
         "",
         "",
         "_______ ___, 2026"
@@ -110,6 +110,8 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     ]
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures"
+    cs["doc_appendix_titles"] = []
+    cs["doc_sponsor_page_titles"] = ["Project Sponsors", "Supporting Organizations"]
     if lang in ("ar-SA", "he-IL", "fa-IR"):
         pass
     else:
