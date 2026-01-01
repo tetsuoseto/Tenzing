@@ -1,8 +1,8 @@
-# OWASP PDF v5.0.0 Installation
+# OWASP PDF v5.1.0 Installation
 
 1. Click [Download ZIP](https://github.com/tetsuoseto/AISVS/archive/refs/heads/main.zip) link to download the all-in-one zip file, AISVS-main.zip (143MB) on your Ubuntu Desktop 24.04.2 LTS or Ubuntu instance on cloud. The zip file contains the original AISVS repo + the owasp_pdf_5 build environment: `AISVS-main/1.0/blddoc` directory.
 
-2. Open terminal window, `cd` to `AISVS-main/1.0/blddoc` directory and run `shasum -a 256 owasp_pdf` to calculate the sha256 hash code of `owasp_pdf` executable. It should match a6e53c65bf2bd0fd2720ce9a1cd5a693f354325903b829467aa3de176624ac5e
+2. Open terminal window, `cd` to `AISVS-main/1.0/blddoc` directory and run `shasum -a 256 owasp_pdf` to calculate the sha256 hash code of `owasp_pdf` executable. It should match cbccb5f657c62292819306add13919bc8e8ea6be4dd7d398168c1da35bf84185
 
 3. Make sure all the source MD files under `AISVS-main/1.0/blddoc/asv/` are symbolic-linked to the original MD files on `AISVS-main/1.0/en/` Note that the source MD file (symbolic link) names follow owasp_pdf naming convention, e.g., `ASV1001_0x01-Frontispiece.md` for `0x01-Frontispiece.md`.
 
@@ -13,9 +13,9 @@
 ```
 $ cd ~/AISVS-main/1.0/blddoc
 $ shasum -a 256 owasp_pdf
-a6e53c65bf2bd0fd2720ce9a1cd5a693f354325903b829467aa3de176624ac5e  owasp_pdf
+cbccb5f657c62292819306add13919bc8e8ea6be4dd7d398168c1da35bf84185  owasp_pdf
 $ ./owasp_pdf -v
-OWASP_PDF Version: OWASP PDF OWASP PDF v5.0.0 20251107-205423
+OWASP_PDF Version: OWASP PDF OWASP PDF v5.1.0 20260101-002106
 $ ./owasp_pdf -y -l ASV_en-US
 *** initializing owasp_pdf build environment...
 *** Loaded 'owasp_pdf_register_ASV_plugin'
@@ -29,7 +29,7 @@ $ ./owasp_pdf -y -l ASV_en-US
 
 1. Get access to Ubuntu on your local linux box or Ubuntu instance on cloud. Tested on Ubuntu Desktop 24.04.2 LTS.  Should work on cloud as well.
 2. Get API key of OpenAI Platform and set it to env.variable:TRANSLATE_ACCESS_KEY. Buy $5 or $10 credit initially. We use GPT-4.1 or GPT-5. One ASV language round costs 25 cents or less.
-3. When you install OWASP PDF 5, easiest is [Download ZIP](https://github.com/tetsuoseto/AISVS/archive/refs/heads/main.zip) -- AISVS-main.zip (143MB) contains everything you need. Follow the OWASP PDF v5.0.0 Installation steps above and verify the installation.
+3. When you install OWASP PDF 5, easiest is [Download ZIP](https://github.com/tetsuoseto/AISVS/archive/refs/heads/main.zip) -- AISVS-main.zip (143MB) contains everything you need. Follow the OWASP PDF v5.1.0 Installation steps above and verify the installation.
 4. Pick your language, e.g, de-DE and run the ./owasp_pdf command with `--mt gpt-4.1-nano` option.
 
 ```
