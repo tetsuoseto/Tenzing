@@ -111,11 +111,20 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures"
     cs["doc_appendix_titles"] = []
-    cs["doc_sponsor_page_titles"] = ["Project Sponsors", "Supporting Organizations"]
+    cs["doc_sponsor_page_titles"] = [
+        "Project Sponsors", "Supporting Organizations"]
     if lang in ("ar-SA", "he-IL", "fa-IR"):
-        pass
+        cs["doc_title_font.line_alignment"] = "right"
+        cs["doc_subtitle_font.line_alignment"] = "right"
+        cs["doc_toc_title_font.line_alignment"] = "right"
+        cs["chapter_font.line_alignment"] = "right"
+        cs["reference_font.line_alignment"] = "right"
     else:
-        pass
+        cs["doc_title_font.line_alignment"] = "left"
+        cs["doc_subtitle_font.line_alignment"] = "left"
+        cs["doc_toc_title_font.line_alignment"] = "left"
+        cs["chapter_font.line_alignment"] = "left"
+        cs["reference_font.line_alignment"] = "left"
 
 def _create_template_pdfs(proj_code, data_dir_path, temp_dir_path):
     use_default_templates = True
