@@ -296,7 +296,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                     for header in re.split(r"[|｜]", raw_line)]
                                 assert len(headers) >= 2, \
                                     f"Check MD line: {raw_line}"
-                                headers = headers[1:3]
+                                headers = headers[1:-1]
                                 skip_write = True
                     elif 1101 <= id_num <= 1299:
                         if is_processing_table:
