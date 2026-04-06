@@ -140,7 +140,7 @@ def register_project(proj_code: str, lang_codes: Tuple[str, ...],
     return None
 
 def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
-        temp_dir_path: str):
+        temp_dir_path: str, doc_toc_translations: list):
     assert proj_code == "ZZZ"
     return markdown_path
 

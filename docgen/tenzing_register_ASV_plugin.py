@@ -42,24 +42,24 @@ from pdb import set_trace # pylint: disable=unused-import
 
 def _set_proj_common_fields(cs: Dict[str, Any]):
     new_cs: Dict[str, Any] = {
-        "doc_template_type": "modern_blue",
-        "doc_title_pivot.pt_x": 72,
-        "doc_title_pivot.pt_y": 440,
-        "doc_toc_title_pivot.pt_x": 72,
-        "doc_toc_title_pivot.pt_y": 172, # add 15 for bi-di for optimal result
+        "doc_template_type": "blank",
+        "doc_title_pivot.pt_x": 306,
+        "doc_title_pivot.pt_y": 250,
+        "doc_toc_title_pivot.pt_x": 306,
+        "doc_toc_title_pivot.pt_y": 80, # add 15 for bi-di for optimal result
         "doc_header": " ",
-        "doc_header_pivot.pt_x": 100,
-        "doc_header_pivot.pt_y": 16,
+        "doc_header_pivot.pt_x": 72,
+        "doc_header_pivot.pt_y": 30,
         "doc_legal_notice": False,
-        "doc_title_font.size": 33,
-        "doc_title_font.line_pitch": 40,
-        "doc_title_font.line_alignment": "left",
+        "doc_title_font.size": 30,
+        "doc_title_font.line_pitch": 45,
+        "doc_title_font.line_alignment": "center",
         "doc_subtitle_font.size": 16,
-        "doc_subtitle_font.line_pitch": 24,
-        "doc_subtitle_font.line_alignment": "left",
+        "doc_subtitle_font.line_pitch": 28,
+        "doc_subtitle_font.line_alignment": "center",
         "doc_toc_title_font.size": 24.0,
         "doc_toc_title_font.line_pitch": 50.0,
-        "doc_toc_title_font.line_alignment": "left",
+        "doc_toc_title_font.line_alignment": "center",
         "doc_site_name": "owasp.org",
         "doc_site_url": "https://owasp.org/" + \
             "www-project-application-security-verification-standard/",
@@ -69,17 +69,23 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "doc_appendix_title_font.color": "black",
         "header_font.color": "white",
         "chapter_pivot.pt_x": 72,
-        "chapter_pivot.pt_y": 130,
+        "chapter_pivot.pt_y": 72,
         "chapter_title_bottom_aligned": False,
-        "chapter_font.size": 20,
-        "chapter_font.line_pitch": 35,
+        "chapter_font.size": 24,
+        "chapter_font.line_pitch": 28,
         "chapter_font.line_alignment": "left",
         "chapter_font.color": "black",
         "section_font.size": 16,
         "section_font.line_pitch": 18.2,
+        "caption_font.size": 0.1,
+        "caption_font.line_pitch": 0.0,
+        "caption_font.line_alignment": "left",
+        "caption_font.color": "white",
         "blockquote_font.size": 10.0,
         "blockquote_font.line_pitch": 14.0,
         "blockquote_font.line_alignment": "justified",
+        "reference_font.size": 10.0,
+        "reference_font.line_pitch": 14.0,
         "reference_font.line_alignment": "left",
         "unordered_list_marker": "circle",
     }
@@ -92,15 +98,18 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
 def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_title"] = [
         "Artificial Intelligence",
-        "Security Verification",
-        "Standard",
+        "Security Verification Standard"
     ]
     cs["doc_subtitles"] = [
         "",
-        "",
-        "",
-        "",
         "Initial Version Work In Progress",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
         "",
         "",
         "_______ ___, 2026"
@@ -109,22 +118,19 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
         "    2026-__-__  1.0  English Version Release",
     ]
     cs["doc_toc_contents_title"] = "Table of Contents"
-    cs["doc_toc_figures_title"] = "Figures"
-    cs["doc_toc_translations"] = ["Table:Table", "Figure:Figure"]
+    cs["doc_toc_figures_title"] = "Figures and Tables"
+    cs["doc_toc_translations"] = ["Table:Table", "Figure:Figure", "Control:Control"]
     cs["doc_appendix_titles"] = []
-    cs["doc_sponsor_page_titles"] = [
-        "Project Sponsors", "Supporting Organizations"]
+    cs["doc_sponsor_page_titles"] = []
     if lang in ("ar-SA", "he-IL", "fa-IR"):
-        cs["doc_title_font.line_alignment"] = "right"
-        cs["doc_subtitle_font.line_alignment"] = "right"
         cs["doc_toc_title_font.line_alignment"] = "right"
         cs["chapter_font.line_alignment"] = "right"
+        cs["caption_font.line_alignment"] = "right"
         cs["reference_font.line_alignment"] = "right"
     else:
-        cs["doc_title_font.line_alignment"] = "left"
-        cs["doc_subtitle_font.line_alignment"] = "left"
         cs["doc_toc_title_font.line_alignment"] = "left"
         cs["chapter_font.line_alignment"] = "left"
+        cs["caption_font.line_alignment"] = "left"
         cs["reference_font.line_alignment"] = "left"
 
 def _create_template_pdfs(proj_code, data_dir_path, temp_dir_path):
@@ -169,31 +175,73 @@ LEVEL_COLORS = {
 }
 
 def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
-        temp_dir_path: str):
+        temp_dir_path: str, doc_toc_translations: list):
     # pylint: disable=too-many-statements, too-many-branches, too-many-locals
     assert proj_code == "ASV"
+    str_control: str = "Control"
+    for trans_pair in doc_toc_translations:
+        items = trans_pair.split(":")
+        if items[0] == str_control:
+            str_control = items[1]
+            break
 
-    def compile_two_lines(headers: List[str], contents: List[str],
-            raw_line: str = ""):
+    def compile_three_lines(headers: List[str], contents: List[str],
+            raw_line: str, id_num: int):
         assert len(headers) == len(contents), \
             f"Check MD line: {raw_line}"
         level: int = 0
         level_str: str = "TRANS ERR"
+        line0: str = ""
+        line1: str = ""
+        line2: str = ""
         try:
             level = int(contents[2])
             level_str = str(level)
             level_colors = LEVEL_COLORS.get(level, DFLT_LEVEL_COLORS)
         except Exception:
             level_colors = DFLT_LEVEL_COLORS
-        line1: str = ">"+level_colors[0]+"|black||||hb  "+\
-            headers[0]+contents[0]
-        if len(headers) == 4:
-            line1 += ("    "+headers[2]+": "+level_str)
-        line1 += ("    "+headers[-1]+": "+str(contents[-1]))
-        line2: str = ">"+level_colors[1]+"|black  "+contents[1]
-        return line1, line2
+        if id_num==1002 and len(headers) == 3:
+            # id_num==1002 : | Column | Meaning |
+            line1 = ">"+level_colors[0]+"|black||||hb  "+\
+                headers[0].replace(" ","")+" : "+contents[0].strip("*")
+            line2 = ">"+level_colors[1]+"|black  "+\
+                "    "+contents[1]
+        elif id_num==1203 and len(headers) == 3:
+            # id_num==1203 : | Control / Technique | Requirement IDs |
+            # Option 1: use blockquote
+            #   Pros: multiline is supported (not broken)
+            #   Cons: not shown on TOC (okay)
+            line1 = ">white|black||||hb  "+\
+                headers[0].replace(" ","")+" : "+contents[0].strip("*")
+            # Option 2: use ###$
+            #   Pros: shown on TOC with back link (broken)
+            #   Cons: long line goes beyond margin (maybe good/maybe noisy)
+            # line1 = "###$ " + contents[0].strip("*")
+            line2 = "     "
+            added_to_line2: bool = False
+            content_items = contents[1].split(",")
+            for content_item in content_items:
+                if added_to_line2:
+                    line2 += ", "
+                line2 += str_control+" "+content_item.strip()
+                added_to_line2 = True
+        else:
+            if headers[0] == "#":
+                # add caption in white color and thin pitch
+                line0 = "####@ "+str_control+" "+\
+                    contents[0].strip("*")+": ("+ \
+                    headers[2]+" "+contents[2]+")"
+            line1 = ">"+level_colors[0]+"|black||||hb  "+\
+                headers[0]+contents[0]
+            line2 = ">"+level_colors[1]+"|black  "+contents[1]
+            if len(headers) == 4:
+                line1 += ("    "+headers[2]+": "+level_str)
+                line2 = ">"+level_colors[1]+"|black  "+contents[1]
+            # this line needed for old Appendix chapter?
+            # line1 += ("    "+headers[-1]+": "+str(contents[-1]))
+        return line0, line1, line2
 
-    re_sharp = "^([\\#]+)( .*)$"
+    re_sharp = "^([\\#]+[@\\$]{0,1})( .*)$"
     re_exclam = "^(\\!\\[)(.*)$"
     re_bar = "^[\\|｜][^\\|｜].*$"
     re_id_num = f"^{proj_code}([0-9]+)_"
@@ -251,7 +299,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 # Does the line start with "#"?
                 matched = re.match(re_sharp, raw_line)
                 if matched:
-                    raw_line = matched.group(1) + "#" + matched.group(2) + "\n"
+                    raw_line = "#" + matched.group(1) + matched.group(2) + "\n"
                     out_fp.write(raw_line)
                     continue
                 # image directory adjustment
@@ -260,7 +308,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 # Does the line start with "!"?
                 matched = re.match(re_exclam, raw_line)
                 if matched:
-                    raw_line = raw_line.replace("../images", "images")
+                    raw_line = raw_line.replace("../images", "images") + "\n"
                     out_fp.write(raw_line)
                     continue
 
@@ -298,7 +346,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                     f"Check MD line: {raw_line}"
                                 headers = headers[1:-1]
                                 skip_write = True
-                    elif 1101 <= id_num <= 1299:
+                    elif id_num == 1002 or (1101 <= id_num <= 1299):
                         if is_processing_table:
                             assert len(headers) > 0, \
                                 f"Check MD line: {raw_line}"
@@ -310,10 +358,17 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                 skip_write = True
                             else:
                                 # table contents
-                                two_lines = compile_two_lines(headers,
-                                    contents, raw_line)
-                                out_fp.write(two_lines[0] + "\n")
-                                out_fp.write(two_lines[1] + "\n")
+                                three_lines = compile_three_lines(headers,
+                                    contents, raw_line, id_num)
+                                out_fp.write(three_lines[1] + "\n")
+                                if three_lines[0]:
+                                    # insert hidden caption line in between
+                                    # with caption_font.line_pitch == 0.0,
+                                    # which guarantees the caption is printed
+                                    # in the same page as the first line.
+                                    # set caption_font.size to 0.1.
+                                    out_fp.write(three_lines[0] + "\n")
+                                out_fp.write(three_lines[2] + "\n")
                                 skip_write = True
                         else:
                             if len(matched.group(0)) > 0:
