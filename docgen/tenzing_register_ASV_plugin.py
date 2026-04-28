@@ -119,7 +119,8 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     ]
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures and Tables"
-    cs["doc_toc_translations"] = ["Table:Table", "Figure:Figure", "Control:Control"]
+    cs["doc_toc_translations"] = [
+        "Table:Table", "Figure:Figure", "Control:Control"]
     cs["doc_appendix_titles"] = []
     cs["doc_sponsor_page_titles"] = []
     if lang in ("ar-SA", "he-IL", "fa-IR"):
