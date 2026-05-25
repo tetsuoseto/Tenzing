@@ -116,7 +116,7 @@ def _create_template_pdfs(proj_code, data_dir_path, temp_dir_path):
 #
 # proj_code: for example, "IPS"
 # lang_codes: tuple of languages, for example ["en-US"]
-# data_dir_path: full path to data directory such as "owasp_pdf_data_IPS"
+# data_dir_path: full path to data directory such as "tenzing_data_IPS"
 # get_customizable_styles: callback function
 def register_project(proj_code: str, lang_codes: Tuple[str, ...],
         data_dir_path: Path, temp_dir_path: str, get_customizable_styles):
@@ -151,7 +151,7 @@ def _test():
 
     dont_care:str = ""
     my_proj_path = os.getcwd()
-    data_dir_path = Path(os.path.join(my_proj_path, "owasp_pdf_data_ZZZ"))
+    data_dir_path = Path(os.path.join(my_proj_path, "tenzing_data_ZZZ"))
     proj_def_generator = register_project("ZZZ", ("en-US",),
         data_dir_path, dont_care, get_cust_styles)
     for proj_def in proj_def_generator:
