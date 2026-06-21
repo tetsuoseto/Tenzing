@@ -266,6 +266,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                     f"Check MD line: {raw_line}"
                 raw_line = raw_line[:-1].strip()
                 skip_write: bool = False
+                if raw_line.startswith("<!--"): # html comment line
+                    continue
                 if raw_line == "\n":
                     out_fp.write(raw_line)
                     continue
