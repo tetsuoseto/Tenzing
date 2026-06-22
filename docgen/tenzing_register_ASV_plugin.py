@@ -224,7 +224,10 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
             for content_item in content_items:
                 if added_to_line2:
                     line2 += ", "
-                line2 += str_control+" "+content_item.strip()
+                content_item_stripped = content_item.strip()
+                if content_item_stripped[0] == "C":
+                    content_item_stripped = content_item_stripped[1:]
+                line2 += str_control+" "+content_item_stripped
                 added_to_line2 = True
         else:
             if headers[0] == "#":
