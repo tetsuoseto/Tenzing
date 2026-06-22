@@ -237,9 +237,34 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
             line2 = ">"+level_colors[1]+"|black  "+contents[1]
             if len(headers) == 4:
                 line1 += ("    "+headers[2]+": "+level_str)
-                line2 = ">"+level_colors[1]+"|black  "+contents[1]
+                line2 = "  >"+level_colors[1]+"|black  "+contents[1]
             # this line needed for old Appendix chapter?
             # line1 += ("    "+headers[-1]+": "+str(contents[-1]))
+        return line0, line1, line2
+
+    def compile_three_lines_1003(headers: List[str], contents: List[str],
+            raw_line: str, id_num: int):
+        assert id_num == 1003, \
+            f"Check MD line: {raw_line}"
+        assert len(headers) == len(contents), \
+            f"Check MD line: {raw_line}"
+        level0: int = 0
+        level1: int = 0
+        use_str: str = "TRANS ERR"
+        line0: str = ""
+        line1: str = ""
+        line2: str = ""
+        try:
+            level0 = int(contents[0])
+            level_colors = LEVEL_COLORS.get(level0, DFLT_LEVEL_COLORS)
+            level1 = int(contents[1])
+            use_str = str(contents[2])
+        except Exception:
+            return use_str, use_str, use_str
+        line0 = f">{level_colors[0]}|||||hb  {headers[0]} " + \
+            f"{str(level0)}  =  {headers[1]} {str(level1)}"
+        line1 = f"  >|||||bb  {headers[2]}:"
+        line2 = f"  >|||||br  {use_str}"
         return line0, line1, line2
 
     re_sharp = "^([\\#]+[@\\$]{0,1})( .*)$"
@@ -266,6 +291,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                     f"Check MD line: {raw_line}"
                 raw_line = raw_line[:-1].strip()
                 skip_write: bool = False
+                if raw_line.startswith("<!--"): # html comment line
+                    continue
                 if raw_line == "\n":
                     out_fp.write(raw_line)
                     continue
@@ -290,6 +317,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                             "|black||||hb  " + raw_line[5:] + "\n"
                         out_fp.write(out_str)
                         continue
+
                 # sharp tag adjustment
                 #-----------------------
                 # "---"?
@@ -345,6 +373,32 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                     for header in re.split(r"[|｜]", raw_line)]
                                 assert len(headers) >= 2, \
                                     f"Check MD line: {raw_line}"
+                                headers = headers[1:-1]
+                                skip_write = True
+                    elif id_num == 1003:
+                        if is_processing_table:
+                            assert len(headers) > 0, \
+                                f"Check MD line: {raw_line}"
+                            contents = [content.strip(" :-") \
+                                for content in re.split(r"[|｜]", raw_line)]
+                            len_contents = len(headers) + 1
+                            contents = contents[1:len_contents]
+                            if all(len(content)==0 for content in contents):
+                                skip_write = True
+                            else:
+                                # table contents
+                                three_lines = compile_three_lines_1003(headers,
+                                    contents, raw_line, id_num)
+                                out_fp.write(three_lines[0] + "\n")
+                                out_fp.write(three_lines[1] + "\n")
+                                out_fp.write(three_lines[2] + "\n")
+                                skip_write = True
+                        else:
+                            if len(matched.group(0)) > 0:
+                                # table header
+                                is_processing_table = True
+                                headers = [header.strip(" ") \
+                                    for header in re.split(r"[|｜]", raw_line)]
                                 headers = headers[1:-1]
                                 skip_write = True
                     elif id_num == 1002 or (1101 <= id_num <= 1299):
