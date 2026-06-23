@@ -371,13 +371,14 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                     title: str = matched.group(2)
                     out_str = "#" + sharps + title + "\n"
                     out_fp.write(out_str)
-                    if sharps == "#" or sharps == "##":
+                    if sharps in ("#", "##"):
                         spacing: float = CHAPTER_SPACING if sharps == "#" \
                             else SECTION_SPACING
                         pitch: float = CHAPTER_PITCH if sharps == "#" \
                             else SECTION_PITCH
                         style: str = "bb" if sharps == "#" else "hb"
-                        out_str = f">||left|{spacing}|{pitch}|{style} {title}"+"\n"
+                        out_str = f">||left|{spacing}|{pitch}|{style}" + \
+                            f" {title}" + "\n"
                         out_fp.write(out_str)
                     continue
                 # image directory adjustment
