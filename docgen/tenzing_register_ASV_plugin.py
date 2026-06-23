@@ -275,6 +275,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
     re_bar = "^[\\|｜][^\\|｜].*$"
     re_id_num = f"^{proj_code}([0-9]+)_"
     re_special_color = r"^[#]{4}.+([1-3一二三])"
+    re_glossary = r"^\* (.+) [-–]{1} (.+)$"
+    # Note: the second – is 0x2013, not the regular hyphen.
 
     basename = os.path.basename(markdown_path)
     assert basename.endswith(".md")
@@ -318,6 +320,19 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                 level_num = 3
                         out_str = f">{LEVEL_COLORS[level_num][0]}" + \
                             "|black||||hb  " + raw_line[5:] + "\n"
+                        out_fp.write(out_str)
+                        continue
+
+                # rich glossary formatting
+                #-----------------------
+                if id_num == 1200:
+                    matched = re.match(re_glossary, raw_line)
+                    if matched:
+                        glossary_term: str = matched.group(1)
+                        out_str = f">|||||bb {glossary_term}" + "\n"
+                        out_fp.write(out_str)
+                        glossary_desc: str = matched.group(2)
+                        out_str = f"  >|||||br {glossary_desc}" + "\n"
                         out_fp.write(out_str)
                         continue
 
