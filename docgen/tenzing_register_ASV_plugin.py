@@ -207,7 +207,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 headers[0].replace(" ","")+" : "+contents[0].strip("*")
             line2 = ">"+level_colors[1]+"|black  "+\
                 "    "+contents[1]
-        elif id_num==1203 and len(headers) == 3:
+        elif id_num==1201 and len(headers) == 3:
             # id_num==1203 : | Control / Technique | Requirement IDs |
             # Option 1: use blockquote
             #   Pros: multiline is supported (not broken)
