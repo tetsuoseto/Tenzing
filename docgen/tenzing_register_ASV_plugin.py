@@ -71,12 +71,13 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "chapter_pivot.pt_x": 72,
         "chapter_pivot.pt_y": 72,
         "chapter_title_bottom_aligned": False,
-        "chapter_font.size": 24,
-        "chapter_font.line_pitch": 28,
+        "chapter_font.size": 0.1,
+        "chapter_font.line_pitch": 0.0,
         "chapter_font.line_alignment": "left",
-        "chapter_font.color": "black",
-        "section_font.size": 16,
-        "section_font.line_pitch": 18.2,
+        "chapter_font.color": "white",
+        "section_font.size": 0.1,
+        "section_font.line_pitch": 0.0,
+        "section_font.color": "white",
         "caption_font.size": 0.1,
         "caption_font.line_pitch": 0.0,
         "caption_font.line_alignment": "left",
@@ -102,7 +103,7 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     ]
     cs["doc_subtitles"] = [
         "",
-        "Initial Version Work In Progress",
+        "Version 1.0",
         "",
         "",
         "",
@@ -111,11 +112,10 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
         "",
         "",
         "",
-        "",
-        "_______ ___, 2026"
+        "June 23, 2026"
     ]
     cs["doc_revision_history"] = [
-        "    2026-__-__  1.0  English Version Release",
+        "    2026-06-23  1.0  English Version Release",
     ]
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures and Tables"
@@ -126,11 +126,13 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     if lang in ("ar-SA", "he-IL", "fa-IR"):
         cs["doc_toc_title_font.line_alignment"] = "right"
         cs["chapter_font.line_alignment"] = "right"
+        cs["section_font.line_alignment"] = "right"
         cs["caption_font.line_alignment"] = "right"
         cs["reference_font.line_alignment"] = "right"
     else:
         cs["doc_toc_title_font.line_alignment"] = "left"
         cs["chapter_font.line_alignment"] = "left"
+        cs["section_font.line_alignment"] = "left"
         cs["caption_font.line_alignment"] = "left"
         cs["reference_font.line_alignment"] = "left"
 
@@ -175,6 +177,11 @@ LEVEL_COLORS = {
     3: ["palegreen", "palegreen"],
 }
 
+CHAPTER_SPACING: float = 24.0
+CHAPTER_PITCH: float = 28.0
+SECTION_SPACING: float = 16.0
+SECTION_PITCH: float = 18.2
+
 def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
         temp_dir_path: str, doc_toc_translations: list):
     # pylint: disable=too-many-statements, too-many-branches, too-many-locals
@@ -207,7 +214,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 headers[0].replace(" ","")+" : "+contents[0].strip("*")
             line2 = ">"+level_colors[1]+"|black  "+\
                 "    "+contents[1]
-        elif id_num==1203 and len(headers) == 3:
+        elif id_num==1201 and len(headers) == 3:
             # id_num==1203 : | Control / Technique | Requirement IDs |
             # Option 1: use blockquote
             #   Pros: multiline is supported (not broken)
@@ -249,6 +256,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
             raw_line: str, id_num: int):
         assert id_num == 1003, \
             f"Check MD line: {raw_line}"
+        assert len(headers) == 3, \
+            f"Check MD line: {raw_line}"
         assert len(headers) == len(contents), \
             f"Check MD line: {raw_line}"
         level0: int = 0
@@ -264,17 +273,31 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
             use_str = str(contents[2])
         except Exception:
             return use_str, use_str, use_str
-        line0 = f">{level_colors[0]}|||||hb  {headers[0]} " + \
+        line0 = f">{level_colors[0]}|||||hb {headers[0]} " + \
             f"{str(level0)}  =  {headers[1]} {str(level1)}"
-        line1 = f"  >|||||bb  {headers[2]}:"
-        line2 = f"  >|||||br  {use_str}"
+        line1 = f"  >|||||bb {headers[2]}:"
+        line2 = f"  >|||||br {use_str}"
         return line0, line1, line2
+
+    def compile_two_lines_1003(headers: List[str], contents: List[str],
+            raw_line: str, id_num: int):
+        assert id_num == 1003, \
+            f"Check MD line: {raw_line}"
+        assert len(headers) == 2, \
+            f"Check MD line: {raw_line}"
+        assert len(headers) == len(contents), \
+            f"Check MD line: {raw_line}"
+        line0: str = f"  >|||||bb '{contents[0].strip('*')}':"
+        line1: str = f"    >|||||br {contents[1]}"
+        return line0, line1
 
     re_sharp = "^([\\#]+[@\\$]{0,1})( .*)$"
     re_exclam = "^(\\!\\[)(.*)$"
     re_bar = "^[\\|｜][^\\|｜].*$"
     re_id_num = f"^{proj_code}([0-9]+)_"
     re_special_color = r"^[#]{4}.+([1-3一二三])"
+    re_glossary = r"^\* (.+) [-–]{1} (.+)$"
+    # Note: the second – is 0x2013, not the regular hyphen.
 
     basename = os.path.basename(markdown_path)
     assert basename.endswith(".md")
@@ -321,6 +344,19 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                         out_fp.write(out_str)
                         continue
 
+                # rich glossary formatting
+                #-----------------------
+                if id_num == 1200:
+                    matched = re.match(re_glossary, raw_line)
+                    if matched:
+                        glossary_term: str = matched.group(1)
+                        out_str = f">|||||bb {glossary_term}" + "\n"
+                        out_fp.write(out_str)
+                        glossary_desc: str = matched.group(2)
+                        out_str = f"  >|||||br {glossary_desc}" + "\n"
+                        out_fp.write(out_str)
+                        continue
+
                 # sharp tag adjustment
                 #-----------------------
                 # "---"?
@@ -331,8 +367,19 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 # Does the line start with "#"?
                 matched = re.match(re_sharp, raw_line)
                 if matched:
-                    raw_line = "#" + matched.group(1) + matched.group(2) + "\n"
-                    out_fp.write(raw_line)
+                    sharps: str = matched.group(1)
+                    title: str = matched.group(2)
+                    out_str = "#" + sharps + title + "\n"
+                    out_fp.write(out_str)
+                    if sharps in ("#", "##"):
+                        spacing: float = CHAPTER_SPACING if sharps == "#" \
+                            else SECTION_SPACING
+                        pitch: float = CHAPTER_PITCH if sharps == "#" \
+                            else SECTION_PITCH
+                        style: str = "bb" if sharps == "#" else "hb"
+                        out_str = f">||left|{spacing}|{pitch}|{style}" + \
+                            f" {title}" + "\n"
+                        out_fp.write(out_str)
                     continue
                 # image directory adjustment
                 #-----------------------
@@ -390,11 +437,16 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                 skip_write = True
                             else:
                                 # table contents
-                                three_lines = compile_three_lines_1003(headers,
-                                    contents, raw_line, id_num)
-                                out_fp.write(three_lines[0] + "\n")
-                                out_fp.write(three_lines[1] + "\n")
-                                out_fp.write(three_lines[2] + "\n")
+                                if len(contents) == 2:
+                                    lines = compile_two_lines_1003(headers,
+                                        contents, raw_line, id_num)
+                                else:
+                                    lines = compile_three_lines_1003(headers,
+                                        contents, raw_line, id_num)
+                                out_fp.write(lines[0] + "\n")
+                                out_fp.write(lines[1] + "\n")
+                                if len(lines) == 3:
+                                    out_fp.write(lines[2] + "\n")
                                 skip_write = True
                         else:
                             if len(matched.group(0)) > 0:
