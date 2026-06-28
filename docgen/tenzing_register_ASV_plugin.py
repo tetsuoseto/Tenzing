@@ -51,6 +51,7 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "doc_header_pivot.pt_x": 72,
         "doc_header_pivot.pt_y": 30,
         "doc_legal_notice": False,
+        "doc_watermark": False,
         "doc_title_font.size": 30,
         "doc_title_font.line_pitch": 45,
         "doc_title_font.line_alignment": "center",
@@ -89,6 +90,11 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "reference_font.line_pitch": 14.0,
         "reference_font.line_alignment": "left",
         "unordered_list_marker": "circle",
+        "md_file_range": [
+            1001,
+            1202
+        ],
+        "max_image_scale": 2.0
     }
     for key in new_cs:
         if cs:
@@ -99,7 +105,7 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
 def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_title"] = [
         "Artificial Intelligence",
-        "Security Verification Standard"
+        "Security Verification Standard 1.0"
     ]
     cs["doc_subtitles"] = [
         "",
@@ -112,10 +118,10 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
         "",
         "",
         "",
-        "June 23, 2026"
+        "June 2026"
     ]
     cs["doc_revision_history"] = [
-        "    2026-06-23  1.0  English Version Release",
+        "    June 2026 Version 1.0 English Release"
     ]
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures and Tables"
