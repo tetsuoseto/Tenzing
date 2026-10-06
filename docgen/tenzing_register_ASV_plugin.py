@@ -83,9 +83,29 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "caption_font.line_pitch": 0.0,
         "caption_font.line_alignment": "left",
         "caption_font.color": "white",
+        "body_font.size": 10.0,
+        "body_font.line_pitch": 13.0,
         "blockquote_font.size": 10.0,
-        "blockquote_font.line_pitch": 14.0,
+        "blockquote_font.line_pitch": 13.0,
         "blockquote_font.line_alignment": "justified",
+        "blockquote_stylesheet": [
+            ["bss-chapter", "C", "||left|24|28|bb"],
+            ["bss-section", "S", "||left|16|18.2|hb"],
+            ["bss-glossaryterm", "GT", "|||||bb"],
+            ["bss-glossarydesc", "GD", "|||||br"],
+            ["bss-tableheader", "TH", "|||||hb"],
+            ["bss-tableheader.levelone", "THL1", "mistyrose"],
+            ["bss-tableheader.leveltwo", "THL2", "yellow"],
+            ["bss-tableheader.levelthree", "THL3", "palegreen"],
+            ["bss-tablerow", "TR", "|||||hr"],
+            ["bss-tablerow.levelone", "TRL1", "mistyrose"],
+            ["bss-tablerow.leveltwo", "TRL2", "yellow"],
+            ["bss-tablerow.levelthree", "TRL3", "palegreen"],
+            ["bss-hairline", "HL", "||center|||mr"],
+            ["bss-requirementlevelone", "L1", "mistyrose"],
+            ["bss-requirementleveltwo", "L2", "yellow"],
+            ["bss-requirementlevelthree", "L3", "palegreen"]
+        ],
         "reference_font.size": 10.0,
         "reference_font.line_pitch": 14.0,
         "reference_font.line_alignment": "left",
@@ -101,6 +121,8 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
             assert key in cs, \
                 f"'{key}' is not defined in customizable styles."
     cs.update(new_cs)
+
+STR_CONTROL: str = "Control"
 
 def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_title"] = [
@@ -126,7 +148,7 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
     cs["doc_toc_contents_title"] = "Table of Contents"
     cs["doc_toc_figures_title"] = "Figures and Tables"
     cs["doc_toc_translations"] = [
-        "Table:Table", "Figure:Figure", "Control:Control"]
+        "Table:Table", "Figure:Figure", f"{STR_CONTROL}:{STR_CONTROL}"]
     cs["doc_appendix_titles"] = []
     cs["doc_sponsor_page_titles"] = []
     if lang in ("ar-SA", "he-IL", "fa-IR"):
@@ -135,12 +157,16 @@ def _set_lang_specific_fields(cs: Dict[str, Any], lang:str):
         cs["section_font.line_alignment"] = "right"
         cs["caption_font.line_alignment"] = "right"
         cs["reference_font.line_alignment"] = "right"
+        cs["blockquote_stylesheet"][0][2] = "||right|24|28|bb"
+        cs["blockquote_stylesheet"][1][2] = "||right|16|18.2|hb"
     else:
         cs["doc_toc_title_font.line_alignment"] = "left"
         cs["chapter_font.line_alignment"] = "left"
         cs["section_font.line_alignment"] = "left"
         cs["caption_font.line_alignment"] = "left"
         cs["reference_font.line_alignment"] = "left"
+        cs["blockquote_stylesheet"][0][2] = "||left|24|28|bb"
+        cs["blockquote_stylesheet"][1][2] = "||left|16|18.2|hb"
 
 def _create_template_pdfs(proj_code, data_dir_path, temp_dir_path):
     use_default_templates = True
@@ -176,23 +202,12 @@ def register_project(proj_code: str, lang_codes: Tuple[str, ...],
             }
     return None
 
-DFLT_LEVEL_COLORS = ["ghostwhite", "ghostwhite"]
-LEVEL_COLORS = {
-    1: ["mistyrose", "mistyrose"], # [head line color, description color]
-    2: ["yellow", "yellow"],
-    3: ["palegreen", "palegreen"],
-}
-
-CHAPTER_SPACING: float = 24.0
-CHAPTER_PITCH: float = 28.0
-SECTION_SPACING: float = 16.0
-SECTION_PITCH: float = 18.2
-
 def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
         temp_dir_path: str, doc_toc_translations: list):
     # pylint: disable=too-many-statements, too-many-branches, too-many-locals
     assert proj_code == "ASV"
-    str_control: str = "Control"
+    str_control: str = STR_CONTROL
+    # replace it with the localized one defined in doc_toc_translations
     for trans_pair in doc_toc_translations:
         items = trans_pair.split(":")
         if items[0] == str_control:
@@ -204,33 +219,20 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
         assert len(headers) == len(contents), \
             f"Check MD line: {raw_line}"
         level: int = 0
-        level_str: str = "TRANS ERR"
         line0: str = ""
         line1: str = ""
         line2: str = ""
         try:
             level = int(contents[2])
-            level_str = str(level)
-            level_colors = LEVEL_COLORS.get(level, DFLT_LEVEL_COLORS)
         except Exception:
-            level_colors = DFLT_LEVEL_COLORS
+            pass
         if id_num==1002 and len(headers) == 3:
-            # id_num==1002 : | Column | Meaning |
-            line1 = ">"+level_colors[0]+"|black||||hb  "+\
+            line1 = f">THL{level}  " + \
                 headers[0].replace(" ","")+" : "+contents[0].strip("*")
-            line2 = ">"+level_colors[1]+"|black  "+\
-                "    "+contents[1]
+            line2 = f">TRL{level}      {contents[1]}"
         elif id_num==1201 and len(headers) == 3:
-            # id_num==1203 : | Control / Technique | Requirement IDs |
-            # Option 1: use blockquote
-            #   Pros: multiline is supported (not broken)
-            #   Cons: not shown on TOC (okay)
-            line1 = ">white|black||||hb  "+\
+            line1 = ">TH  "+\
                 headers[0].replace(" ","")+" : "+contents[0].strip("*")
-            # Option 2: use ###$
-            #   Pros: shown on TOC with back link (broken)
-            #   Cons: long line goes beyond margin (maybe good/maybe noisy)
-            # line1 = "###$ " + contents[0].strip("*")
             line2 = "     "
             added_to_line2: bool = False
             content_items = contents[1].split(",")
@@ -240,22 +242,21 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 content_item_stripped = content_item.strip()
                 if content_item_stripped[0] == "C":
                     content_item_stripped = content_item_stripped[1:]
-                line2 += str_control+" "+content_item_stripped
+                line2 += str_control + " " + content_item_stripped
                 added_to_line2 = True
         else:
+            headers_zero = headers[0]
             if headers[0] == "#":
+                headers_zero = "\uFF03" # full-width sharp
                 # add caption in white color and thin pitch
-                line0 = "####@ "+str_control+" "+\
-                    contents[0].strip("*")+": ("+ \
-                    headers[2]+" "+contents[2]+")"
-            line1 = ">"+level_colors[0]+"|black||||hb  "+\
-                headers[0]+contents[0]
-            line2 = ">"+level_colors[1]+"|black  "+contents[1]
+                line0 = "####@ "+str_control + " " + \
+                    contents[0].strip("*") + ": (" + \
+                    headers[2] + " " + contents[2] + ")"
+            line1 = f">THL{level}  " + headers_zero + contents[0]
+            line2 = f">TRL{level}  " + contents[1]
             if len(headers) == 4:
-                line1 += ("    "+headers[2]+": "+level_str)
-                line2 = "  >"+level_colors[1]+"|black  "+contents[1]
-            # this line needed for old Appendix chapter?
-            # line1 += ("    "+headers[-1]+": "+str(contents[-1]))
+                line1 += (f"    {headers[2]} : {level}")
+                line2 = f"  >TRL{level}  "+contents[1]
         return line0, line1, line2
 
     def compile_three_lines_1003(headers: List[str], contents: List[str],
@@ -274,15 +275,14 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
         line2: str = ""
         try:
             level0 = int(contents[0])
-            level_colors = LEVEL_COLORS.get(level0, DFLT_LEVEL_COLORS)
             level1 = int(contents[1])
             use_str = str(contents[2])
         except Exception:
             return use_str, use_str, use_str
-        line0 = f">{level_colors[0]}|||||hb {headers[0]} " + \
+        line0 = f">THL{level0} {headers[0]} " + \
             f"{str(level0)}  =  {headers[1]} {str(level1)}"
-        line1 = f"  >|||||bb {headers[2]}:"
-        line2 = f"  >|||||br {use_str}"
+        line1 = f"  >TH {headers[2]}:"
+        line2 = f"    >TR {use_str}"
         return line0, line1, line2
 
     def compile_two_lines_1003(headers: List[str], contents: List[str],
@@ -293,8 +293,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
             f"Check MD line: {raw_line}"
         assert len(headers) == len(contents), \
             f"Check MD line: {raw_line}"
-        line0: str = f"  >|||||bb '{contents[0].strip('*')}':"
-        line1: str = f"    >|||||br {contents[1]}"
+        line0: str = f"  >TH '{contents[0].strip('*')}':"
+        line1: str = f"    >TR {contents[1]}"
         return line0, line1
 
     re_sharp = "^([\\#]+[@\\$]{0,1})( .*)$"
@@ -345,8 +345,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                                 level_num = 2
                             else:
                                 level_num = 3
-                        out_str = f">{LEVEL_COLORS[level_num][0]}" + \
-                            "|black||||hb  " + raw_line[5:] + "\n"
+                        out_str = f">THL{level_num} " + raw_line[5:] + "\n"
                         out_fp.write(out_str)
                         continue
 
@@ -356,10 +355,10 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                     matched = re.match(re_glossary, raw_line)
                     if matched:
                         glossary_term: str = matched.group(1)
-                        out_str = f">|||||bb {glossary_term}" + "\n"
+                        out_str = f">GT {glossary_term}" + "\n"
                         out_fp.write(out_str)
                         glossary_desc: str = matched.group(2)
-                        out_str = f"  >|||||br {glossary_desc}" + "\n"
+                        out_str = f"  >GD {glossary_desc}" + "\n"
                         out_fp.write(out_str)
                         continue
 
@@ -367,7 +366,7 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 #-----------------------
                 # "---"?
                 if raw_line == "---":
-                    out_fp.write(">white|black|center|||mr " + "─"*40 + "\n")
+                    out_fp.write(">HL " + "─"*40 + "\n")
                     continue
                 #-----------------------
                 # Does the line start with "#"?
@@ -378,13 +377,8 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                     out_str = "#" + sharps + title + "\n"
                     out_fp.write(out_str)
                     if sharps in ("#", "##"):
-                        spacing: float = CHAPTER_SPACING if sharps == "#" \
-                            else SECTION_SPACING
-                        pitch: float = CHAPTER_PITCH if sharps == "#" \
-                            else SECTION_PITCH
-                        style: str = "bb" if sharps == "#" else "hb"
-                        out_str = f">||left|{spacing}|{pitch}|{style}" + \
-                            f" {title}" + "\n"
+                        style_alias: str = "C" if sharps == "#" else "S"
+                        out_str = f">{style_alias} {title}" + "\n"
                         out_fp.write(out_str)
                     continue
                 # image directory adjustment
