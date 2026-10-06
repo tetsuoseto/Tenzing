@@ -102,6 +102,7 @@ def _set_proj_common_fields(cs: Dict[str, Any]):
         "reference_font.line_pitch": 10.0,
         "reference_font.line_alignment": "left",
         "unordered_list_marker": "circle",
+        "md_file_translation_data_sheet": 940,
         "max_image_scale": 1.3,
     }
     for key in new_cs:

@@ -245,12 +245,14 @@ def translate_markdown(proj_code: str, lang_code: str, markdown_path: Path,
                 line2 += str_control + " " + content_item_stripped
                 added_to_line2 = True
         else:
+            headers_zero = headers[0]
             if headers[0] == "#":
+                headers_zero = "\uFF03" # full-width sharp
                 # add caption in white color and thin pitch
                 line0 = "####@ "+str_control + " " + \
                     contents[0].strip("*") + ": (" + \
                     headers[2] + " " + contents[2] + ")"
-            line1 = f">THL{level}  " + headers[0] + contents[0]
+            line1 = f">THL{level}  " + headers_zero + contents[0]
             line2 = f">TRL{level}  " + contents[1]
             if len(headers) == 4:
                 line1 += (f"    {headers[2]} : {level}")
