@@ -4,7 +4,7 @@
 
 ```
 $ shasum -a 256 tenzing
-Linux:07d308da24349e574e9e32ceb9719fcd02661d824607a3698a92110eb1fe7fac  tenzing
+Linux:43b2fb5476e25e2477a63454c8245ef24fcd260a05f71437129533d9ef177016  tenzing
 ```
 
 ## Documentation
